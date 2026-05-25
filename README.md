@@ -1,48 +1,70 @@
 # ディズニー待ち時間メモ
 
-スマホで見やすい、シンプルなカード型UIのWebアプリです。GitHub Pages で動作する静的構成（HTML/CSS/JavaScript）で、Queue-Times.com の API から東京ディズニーランド / 東京ディズニーシーの待ち時間を取得して表示します。
+スマホで見やすい、シンプルなカード型UIのWebアプリです。GitHub Pages で動作する静的構成（HTML/CSS/JavaScript）で、Queue-Times.com の API から東京ディズニーランド / 東京ディズニーシーの待ち時間を表示します。
 
 > ⚠️ このアプリは **東京ディズニーリゾート公式アプリではありません**。
 
 ## 外部APIについて
 
 - 本アプリは外部APIとして **Queue-Times.com Real Time API** を利用します。
-- 画面内に **Powered by Queue-Times.com** の表示を必須で入れています。
-- 使用エンドポイント:
-  - `https://queue-times.com/parks/274/queue_times.json`（東京ディズニーランド）
-  - `https://queue-times.com/parks/275/queue_times.json`（東京ディズニーシー）
 - APIキーや認証情報は使用していません。
 - 公式サイト・公式アプリのスクレイピングは行いません。
+- 画面内に **Powered by Queue-Times.com** の表示を必須で入れています。
 
-## フォールバック仕様
+## GitHub Pages + CORS 対応方針
 
-- API取得に失敗した場合は、既存のサンプルデータ表示へ自動フォールバックします。
-- その際、UI上に「現在はサンプル表示です」と分かる案内を表示します。
-- 待ち時間が取得できない項目は「案内なし」と表示します。
+GitHub Pages 上のフロントエンドから Queue-Times API を直接 `fetch` すると、ブラウザ環境によっては CORS / NetworkError（`TypeError: Failed to fetch`）で失敗することがあります。
 
-## GitHub Pagesでの直接取得について
+そのため、以下の構成を採用します。
 
-- GitHub Pages上のブラウザから、Queue-Times API（`.json` エンドポイント）へ **直接 `fetch`** しています。
-- 通信失敗時は、UIの「詳細（デバッグ）」に以下を表示します。
-  - API URL
-  - HTTP status / ok / statusText
-  - CORSまたはNetworkErrorの可能性
-  - JSON解析エラー
-  - データ形式不一致（`lands` / `rides`）
-- 失敗時のみサンプル表示へフォールバックし、成功時は「リアルタイム」表示になります。
+GitHub Pages フロントエンド → Cloudflare Workers 中継API → Queue-Times API
 
-## CORSと次善策
+## Cloudflare Worker 実装
 
-- まずはブラウザから Queue-Times API を直接取得する方式です（GitHub Pages対応を優先）。
-- もしブラウザ環境で CORS 制約により取得できない場合は、serverless proxy（例: Vercel Functions, Cloudflare Workers）経由に切り替えるのが次善策です。
+`worker.js` を追加しています。
+
+- `GET /?park=land` → `parks/274/queue_times.json`
+- `GET /?park=sea` → `parks/275/queue_times.json`
+- `GET /?park=all` → 274 と 275 を両方取得し、1レスポンスに統合
+- `OPTIONS` リクエスト対応（CORS preflight）
+- `Access-Control-Allow-Origin: *` を返却
+- `lands[].rides[]` を展開し、以下を返却
+  - park（ランド/シー）
+  - area（エリア名）
+  - name（アトラクション名）
+  - wait_time（待ち時間）
+  - is_open / status（稼働状態）
+  - last_updated（最終更新時刻）
+
+## Cloudflare Workers デプロイ手順
+
+1. Cloudflare ダッシュボードで Workers を作成
+2. Worker のコードを `worker.js` の内容に置き換える
+3. Deploy して `https://<worker-name>.<subdomain>.workers.dev` を取得
+4. ブラウザで疎通確認
+   - `https://<worker-url>/?park=land`
+   - `https://<worker-url>/?park=sea`
+   - `https://<worker-url>/?park=all`
+
+## GitHub Pages 側の設定
+
+`app.js` 先頭の `API_BASE_URL` を Cloudflare Workers のURLに設定します。
+
+```js
+const API_BASE_URL = "https://your-worker-name.your-subdomain.workers.dev";
+```
+
+- `API_BASE_URL` が空文字（未設定）の場合はサンプルデータ表示へフォールバックします。
+- Worker からの取得成功時は UI に「リアルタイム」と表示します。
+- 取得失敗時は自動でサンプル表示にフォールバックします。
 
 ## できること
 
-- ランド / シー / すべて の切り替えに応じたデータ取得
+- ランド / シー / すべて の切り替え
 - おすすめ順 / 待ち時間順 の切り替え
 - アトラクション名・待ち時間・ステータスの表示
 - 最終更新時刻の表示
-- API取得失敗時のやさしいエラーメッセージ表示
+- API取得失敗時のフォールバック表示
 
 ## 起動方法
 
@@ -59,6 +81,7 @@ python3 -m http.server 8000
 
 ## ファイル構成
 
-- `index.html`: 画面レイアウト（フィルター、最終更新、注意文、Powered by 表示）
-- `style.css`: 白ベースのカードUIと状態表示のスタイル
-- `app.js`: API取得、フォールバック、並び替え、描画ロジック
+- `index.html`: 画面レイアウト
+- `style.css`: UIスタイル
+- `app.js`: フロントエンド取得・フォールバック・描画ロジック
+- `worker.js`: Cloudflare Workers 中継API
