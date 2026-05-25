@@ -18,20 +18,22 @@
       </header>
 
       <section class="filter-bar" aria-label="フィルターと並び替え">
-        <div class="control-group" role="group" aria-label="パーク切り替え">
-          <p class="group-label">パーク</p>
-          <div class="segmented-control segmented-park">
-            <button type="button" data-park-filter="ランド" class="seg-button">ランド</button>
-            <button type="button" data-park-filter="シー" class="seg-button">シー</button>
-            <button type="button" data-park-filter="すべて" class="seg-button is-active">すべて</button>
+        <div class="controls-grid">
+          <div class="control-group" role="group" aria-label="パーク切り替え">
+            <p class="group-label">パーク</p>
+            <div class="segmented-control segmented-park">
+              <button type="button" data-park-filter="ランド" class="seg-button">ランド</button>
+              <button type="button" data-park-filter="シー" class="seg-button">シー</button>
+              <button type="button" data-park-filter="すべて" class="seg-button is-active">すべて</button>
+            </div>
           </div>
-        </div>
 
-        <div class="control-group" role="group" aria-label="並び順切り替え">
-          <p class="group-label">並び順</p>
-          <div class="segmented-control segmented-sort">
-            <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
-            <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
+          <div class="control-group" role="group" aria-label="並び順切り替え">
+            <p class="group-label">並び順</p>
+            <div class="segmented-control segmented-sort">
+              <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
+              <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
+            </div>
           </div>
         </div>
 
@@ -58,7 +60,7 @@
       <section class="recommend" aria-live="polite">
         <div class="recommend-head">
           <h2>今おすすめ</h2>
-          <span class="recommend-tag">おすすめ Pick</span>
+          <span class="recommend-tag">Magic Pick</span>
         </div>
         <p id="recommendText"></p>
       </section>
