@@ -1,4 +1,4 @@
-const API_BASE_URL = ""; // 例: "https://your-worker-name.your-subdomain.workers.dev"
+const API_BASE_URL = "https://dark-pine-957e.oqosfyqziob.workers.dev";
 
 const SAMPLE_ATTRACTIONS = [
   { park: "ランド", area: "ファンタジーランド", name: "プーさんのハニーハント", wait: 45, priority: "高", childFriendly: true, status: "稼働中" },
@@ -102,15 +102,6 @@ function setDebugError(message, detailObj) {
 }
 
 async function fetchWorkerData(parkName) {
-  if (!API_BASE_URL) {
-    throw {
-      type: "worker_not_configured",
-      parkName,
-      url: "未設定",
-      message: "API_BASE_URL が未設定のためサンプル表示にフォールバックします。"
-    };
-  }
-
   const parkParam = PARK_QUERY_MAP[parkName] || "all";
   const baseUrl = API_BASE_URL.replace(/\/$/, "");
   const url = `${baseUrl}/?park=${parkParam}`;
@@ -152,13 +143,18 @@ async function fetchWorkerData(parkName) {
     };
   }
 
-  return data.rides.map((ride) => normalizeRide({
+  const normalizedRides = data.rides.map((ride) => normalizeRide({
     name: ride.name,
     wait_time: ride.wait_time,
     is_open: ride.is_open,
-    last_updated: ride.last_updated,
+    last_updated: ride.last_updated || ride.lastUpdated || null,
     land: ride.area
   }, ride.park));
+
+  return {
+    rides: normalizedRides,
+    fetchedAt: data.fetchedAt || data.generated_at || null
+  };
 }
 
 async function refreshData() {
@@ -169,13 +165,13 @@ async function refreshData() {
   setButtonsDisabled(true);
 
   try {
-    const targets = currentFilter === "すべて" ? ["ランド", "シー"] : [currentFilter];
-    const results = await Promise.all(targets.map((park) => fetchWorkerData(park)));
-    liveAttractions = results.flat();
+    const result = await fetchWorkerData(currentFilter);
+    liveAttractions = result.rides;
     fallbackMode = false;
 
-    const apiTimes = liveAttractions.map((ride) => ride.apiLastUpdated).filter(Boolean).sort();
-    const latestApiTime = apiTimes.length ? apiTimes[apiTimes.length - 1] : null;
+    const rideTimes = liveAttractions.map((ride) => ride.apiLastUpdated).filter(Boolean).sort();
+    const latestRideTime = rideTimes.length ? rideTimes[rideTimes.length - 1] : null;
+    const latestApiTime = latestRideTime || result.fetchedAt;
 
     dataNotice.textContent = "リアルタイム待ち時間を表示中（リアルタイム）";
     lastUpdated.textContent = latestApiTime
