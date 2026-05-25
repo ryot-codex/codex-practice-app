@@ -12,11 +12,18 @@
   - `https://queue-times.com/parks/274/queue_times.json`（東京ディズニーランド）
   - `https://queue-times.com/parks/275/queue_times.json`（東京ディズニーシー）
 - APIキーや認証情報は使用していません。
+- 公式サイト・公式アプリのスクレイピングは行いません。
 
 ## フォールバック仕様
 
 - API取得に失敗した場合は、既存のサンプルデータ表示へ自動フォールバックします。
 - その際、UI上に「現在はサンプル表示です」と分かる案内を表示します。
+- 待ち時間が取得できない項目は「案内なし」と表示します。
+
+## CORSと次善策
+
+- まずはブラウザから Queue-Times API を直接取得する方式です（GitHub Pages対応を優先）。
+- もしブラウザ環境で CORS 制約により取得できない場合は、serverless proxy（例: Vercel Functions, Cloudflare Workers）経由に切り替えるのが次善策です。
 
 ## できること
 
