@@ -36,12 +36,23 @@ body {
   color: var(--sub);
 }
 
+.notice {
+  background: #fff8e1;
+  border: 1px solid #f2d59c;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 12px 0 16px;
+  color: #7a5300;
+  font-size: 0.92rem;
+}
+
 .controls {
   margin: 16px 0;
+  display: grid;
+  gap: 10px;
 }
 
 button {
-  width: 100%;
   border: none;
   border-radius: 10px;
   padding: 12px 14px;
@@ -49,6 +60,22 @@ button {
   color: #fff;
   font-size: 1rem;
   font-weight: 600;
+}
+
+.filter-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.filter-button {
+  background: #e9f1ff;
+  color: #2358a5;
+}
+
+.filter-button.is-active {
+  background: var(--accent);
+  color: #fff;
 }
 
 .recommend {
@@ -63,6 +90,12 @@ button {
 section h2 {
   margin: 0 0 8px;
   font-size: 1.1rem;
+}
+
+.count-text {
+  margin: 0 0 10px;
+  color: var(--sub);
+  font-size: 0.92rem;
 }
 
 .card-list {
@@ -105,8 +138,12 @@ section h2 {
 }
 
 @media (min-width: 640px) {
-  button {
-    width: auto;
-    min-width: 280px;
+  .controls {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+
+  #sortButton {
+    min-width: 260px;
   }
 }

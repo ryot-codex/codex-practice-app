@@ -13,7 +13,16 @@
         <p>サンプルデータで待ち時間を確認しよう</p>
       </header>
 
-      <section class="controls" aria-label="並び替え">
+      <section class="notice" aria-label="注意事項">
+        <p>⚠️ これはリアルタイムの待ち時間ではなく、練習用のサンプルです。</p>
+      </section>
+
+      <section class="controls" aria-label="フィルターと並び替え">
+        <div class="filter-buttons" role="group" aria-label="パーク切り替え">
+          <button type="button" data-park-filter="ランド" class="filter-button">ランド</button>
+          <button type="button" data-park-filter="シー" class="filter-button">シー</button>
+          <button type="button" data-park-filter="すべて" class="filter-button is-active">すべて</button>
+        </div>
         <button id="sortButton" type="button">待ち時間が短い順に並び替え</button>
       </section>
 
@@ -24,6 +33,7 @@
 
       <section>
         <h2>アトラクション一覧</h2>
+        <p id="countText" class="count-text"></p>
         <div id="attractionList" class="card-list"></div>
       </section>
     </main>
