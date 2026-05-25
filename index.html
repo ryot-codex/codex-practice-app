@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="sky-layer" aria-hidden="true"></div>
     <main class="container">
       <header class="header">
         <div class="header-inner">
           <p class="eyebrow">Disney Wait Notes</p>
           <h1>ディズニー待ち時間メモ</h1>
-          <p class="lead">ランド / シーの待ち時間を、見やすく整理</p>
+          <p class="lead">夜のパーク前に、ランド / シーの待ち時間を上品にガイド</p>
           <p id="closureNotice" class="top-notice" aria-live="polite"></p>
         </div>
       </header>
@@ -20,7 +21,7 @@
       <section class="filter-bar" aria-label="フィルターと並び替え">
         <div class="controls-grid">
           <div class="control-group" role="group" aria-label="パーク切り替え">
-            <p class="group-label">パーク</p>
+            <p class="group-label">Park Select</p>
             <div class="segmented-control segmented-park">
               <button type="button" data-park-filter="ランド" class="seg-button">ランド</button>
               <button type="button" data-park-filter="シー" class="seg-button">シー</button>
@@ -29,7 +30,7 @@
           </div>
 
           <div class="control-group" role="group" aria-label="並び順切り替え">
-            <p class="group-label">並び順</p>
+            <p class="group-label">Sort</p>
             <div class="segmented-control segmented-sort">
               <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
               <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
@@ -38,10 +39,10 @@
         </div>
 
         <div class="status-grid" aria-live="polite">
-          <article class="status-card"><p class="status-label">現在の表示</p><p id="currentState" class="status-value"></p></article>
-          <article class="status-card"><p class="status-label">件数</p><p id="countText" class="status-value"></p></article>
-          <article class="status-card"><p class="status-label">最終更新</p><p id="lastUpdated" class="status-value"></p></article>
-          <article class="status-card"><p class="status-label">リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">🎠 現在の表示</p><p id="currentState" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">🎟 件数</p><p id="countText" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">🕒 最終更新</p><p id="lastUpdated" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">📡 リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
         </div>
 
         <p id="loadingState" class="loading-inline" aria-live="polite"></p>
@@ -50,11 +51,6 @@
           <p id="debugSummary" class="debug-summary">通常時は非表示です。</p>
           <pre id="debugInfo" class="debug-info"></pre>
         </details>
-      </section>
-
-      <section class="notice" aria-label="注意事項">
-        <p>※ これは東京ディズニーリゾート公式アプリではありません。</p>
-        <p>※ <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a></p>
       </section>
 
       <section class="recommend" aria-live="polite">
@@ -68,6 +64,11 @@
       <section class="list-section">
         <h2>アトラクション一覧</h2>
         <div id="attractionList" class="card-list"></div>
+      </section>
+
+      <section class="notice" aria-label="注意事項">
+        <p>※ これは東京ディズニーリゾート公式アプリではありません。</p>
+        <p>※ <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a></p>
       </section>
     </main>
 

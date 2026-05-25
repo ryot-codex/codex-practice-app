@@ -262,14 +262,15 @@ function createCard(item) {
   const childBadgeClass = item.childFriendly ? "child-yes" : "child-no";
   const childLabel = item.childFriendly ? "👨‍👩‍👧 子連れ向け" : "🎢 絶叫寄り";
   const waitText = resolveWaitText(item);
+  const waitClass = item.status === "稼働中" ? "wait-running" : item.status === "休止中" ? "wait-paused" : "wait-unknown";
 
   card.innerHTML = `
     <div class="card-head">
-      <div>
+      <div class="card-title-wrap">
         <h3>${item.name}</h3>
         <p class="area">${item.park} ・ ${item.area}</p>
       </div>
-      <span class="wait-time">${waitText}</span>
+      <span class="wait-time ${waitClass}">${waitText}</span>
     </div>
     <div class="meta-row">
       <span class="badge ${priorityClassMap[item.priority]}">優先度 ${item.priority}</span>
@@ -310,9 +311,9 @@ function render() {
   const recommended = getRecommendedItem(items);
   const waitText = resolveWaitText(recommended);
   if (recommended.status === "案内なし" || recommended.status === "休止中") {
-    recommendText.textContent = `いまは案内が少ない時間帯です。${recommended.park}の「${recommended.name}」は${waitText}（${recommended.status}）。`;
+    recommendText.textContent = `今は案内が少ない時間帯です。${recommended.park}の「${recommended.name}」は現在 ${waitText}（${recommended.status}）です。落ち着いた時間のガイドとしてご利用ください。`;
   } else {
-    recommendText.textContent = `${recommended.name}｜${recommended.park}・${recommended.area}｜待ち ${waitText}｜${recommended.status}`;
+    recommendText.textContent = `✨ ${recommended.name} ｜ ${recommended.park}・${recommended.area} ｜ 待ち ${waitText} ｜ ${recommended.status}`;
   }
 }
 
