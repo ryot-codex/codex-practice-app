@@ -36,10 +36,21 @@
               <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
             </div>
           </div>
+
+          <div class="control-group" role="group" aria-label="モード切り替え">
+            <p class="group-label">Mode</p>
+            <div class="segmented-control segmented-mode">
+              <button type="button" data-mode="normal" class="seg-button is-active">通常</button>
+              <button type="button" data-mode="family" class="seg-button">子連れ</button>
+              <button type="button" data-mode="efficient" class="seg-button">効率重視</button>
+              <button type="button" data-mode="relax" class="seg-button">休憩向き</button>
+              <button type="button" data-mode="show" class="seg-button">ショー・パレード優先</button>
+            </div>
+          </div>
         </div>
 
         <div class="status-grid" aria-live="polite">
-          <article class="status-card"><p class="status-label">🎠 現在の表示</p><p id="currentState" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">🎠 現在の表示</p><p id="currentState" class="status-value"></p><p id="modeHint" class="status-sub"></p></article>
           <article class="status-card"><p class="status-label">🎟 件数</p><p id="countText" class="status-value"></p></article>
           <article class="status-card"><p class="status-label">🕒 最終更新</p><p id="lastUpdated" class="status-value"></p></article>
           <article class="status-card"><p class="status-label">📡 リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
@@ -59,6 +70,7 @@
           <span class="recommend-tag">Magic Pick</span>
         </div>
         <p id="recommendText"></p>
+        <div id="recommendReasons" class="reason-row"></div>
       </section>
 
       <section class="list-section">
