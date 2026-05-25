@@ -1,16 +1,16 @@
 const SAMPLE_ATTRACTIONS = [
-  { park: "ランド", area: "ファンタジーランド", name: "プーさんのハニーハント", wait: 45, priority: "高", childFriendly: true },
-  { park: "ランド", area: "ウエスタンランド", name: "ビッグサンダー・マウンテン", wait: 35, priority: "中", childFriendly: false },
-  { park: "ランド", area: "トゥモローランド", name: "モンスターズ・インク ライド＆ゴーシーク！", wait: 25, priority: "高", childFriendly: true },
-  { park: "ランド", area: "アドベンチャーランド", name: "ジャングルクルーズ", wait: 15, priority: "低", childFriendly: true },
-  { park: "ランド", area: "ファンタジーランド", name: "ホーンテッドマンション", wait: 20, priority: "中", childFriendly: false },
-  { park: "ランド", area: "トゥモローランド", name: "スペース・マウンテン", wait: 50, priority: "中", childFriendly: false },
-  { park: "ランド", area: "クリッターカントリー", name: "スプラッシュ・マウンテン", wait: 40, priority: "高", childFriendly: false },
-  { park: "シー", area: "メディテレーニアンハーバー", name: "ソアリン：ファンタスティック・フライト", wait: 65, priority: "高", childFriendly: false },
-  { park: "シー", area: "ロストリバーデルタ", name: "インディ・ジョーンズ®・アドベンチャー", wait: 45, priority: "高", childFriendly: false },
-  { park: "シー", area: "マーメイドラグーン", name: "ジャンピン・ジェリーフィッシュ", wait: 15, priority: "低", childFriendly: true },
-  { park: "シー", area: "ポートディスカバリー", name: "ニモ＆フレンズ・シーライダー", wait: 35, priority: "中", childFriendly: true },
-  { park: "シー", area: "アメリカンウォーターフロント", name: "タワー・オブ・テラー", wait: 55, priority: "高", childFriendly: false }
+  { park: "ランド", area: "ファンタジーランド", name: "プーさんのハニーハント", wait: 45, priority: "高", childFriendly: true, status: "稼働中" },
+  { park: "ランド", area: "ウエスタンランド", name: "ビッグサンダー・マウンテン", wait: 35, priority: "中", childFriendly: false, status: "稼働中" },
+  { park: "ランド", area: "トゥモローランド", name: "モンスターズ・インク ライド＆ゴーシーク！", wait: 25, priority: "高", childFriendly: true, status: "稼働中" },
+  { park: "ランド", area: "アドベンチャーランド", name: "ジャングルクルーズ", wait: 15, priority: "低", childFriendly: true, status: "稼働中" },
+  { park: "ランド", area: "ファンタジーランド", name: "ホーンテッドマンション", wait: 20, priority: "中", childFriendly: false, status: "稼働中" },
+  { park: "ランド", area: "トゥモローランド", name: "スペース・マウンテン", wait: 50, priority: "中", childFriendly: false, status: "運休/停止中" },
+  { park: "ランド", area: "クリッターカントリー", name: "スプラッシュ・マウンテン", wait: 40, priority: "高", childFriendly: false, status: "稼働中" },
+  { park: "シー", area: "メディテレーニアンハーバー", name: "ソアリン：ファンタスティック・フライト", wait: 65, priority: "高", childFriendly: false, status: "稼働中" },
+  { park: "シー", area: "ロストリバーデルタ", name: "インディ・ジョーンズ®・アドベンチャー", wait: 45, priority: "高", childFriendly: false, status: "稼働中" },
+  { park: "シー", area: "マーメイドラグーン", name: "ジャンピン・ジェリーフィッシュ", wait: 15, priority: "低", childFriendly: true, status: "稼働中" },
+  { park: "シー", area: "ポートディスカバリー", name: "ニモ＆フレンズ・シーライダー", wait: 35, priority: "中", childFriendly: true, status: "稼働中" },
+  { park: "シー", area: "アメリカンウォーターフロント", name: "タワー・オブ・テラー", wait: 55, priority: "高", childFriendly: false, status: "稼働中" }
 ];
 
 const PARK_CONFIG = {
@@ -24,6 +24,7 @@ const countText = document.getElementById("countText");
 const currentState = document.getElementById("currentState");
 const dataNotice = document.getElementById("dataNotice");
 const lastUpdated = document.getElementById("lastUpdated");
+const loadingState = document.getElementById("loadingState");
 
 const parkButtons = document.querySelectorAll("[data-park-filter]");
 const sortButtons = document.querySelectorAll("[data-sort]");
@@ -35,6 +36,12 @@ let fallbackMode = false;
 
 const priorityScore = { 高: 3, 中: 2, 低: 1 };
 const priorityClassMap = { 高: "priority-high", 中: "priority-mid", 低: "priority-low" };
+
+function setButtonsDisabled(disabled) {
+  [...parkButtons, ...sortButtons].forEach((button) => {
+    button.disabled = disabled;
+  });
+}
 
 function inferPriority(wait) {
   if (wait == null) return "低";
@@ -51,15 +58,21 @@ function formatUpdatedTime(date) {
   }).format(date);
 }
 
+function resolveStatus(ride) {
+  if (ride.is_open === true) return "稼働中";
+  if (ride.is_open === false) return "運休/停止中";
+  return "状態不明";
+}
+
 function normalizeRide(ride, parkName) {
   const wait = typeof ride.wait_time === "number" ? ride.wait_time : null;
   return {
     park: parkName,
     area: ride.land || "エリア情報なし",
-    name: ride.name,
+    name: ride.name || "名称未登録",
     wait,
     priority: inferPriority(wait),
-    status: ride.is_open ? "稼働中" : "運休/停止中",
+    status: resolveStatus(ride),
     childFriendly: true
   };
 }
@@ -81,7 +94,9 @@ async function fetchParkData(parkName) {
 
 async function refreshData() {
   currentState.textContent = `現在の表示: ${currentFilter} / データ取得中...`;
-  dataNotice.textContent = "待ち時間データを読み込み中です…";
+  loadingState.textContent = "読み込み中…";
+  dataNotice.textContent = "待ち時間データを取得しています";
+  setButtonsDisabled(true);
 
   try {
     const targets = currentFilter === "すべて" ? ["ランド", "シー"] : [currentFilter];
@@ -95,6 +110,9 @@ async function refreshData() {
     liveAttractions = [...SAMPLE_ATTRACTIONS];
     dataNotice.textContent = "通信に失敗したため、現在はサンプル表示です。時間をおいて再読み込みしてください。";
     lastUpdated.textContent = `最終更新: ${formatUpdatedTime(new Date())}（サンプル）`;
+  } finally {
+    loadingState.textContent = "";
+    setButtonsDisabled(false);
   }
 
   render();

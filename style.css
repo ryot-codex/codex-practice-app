@@ -268,3 +268,19 @@ body {
   background: #eef2f8;
   color: #475366;
 }
+
+.loading-inline {
+  margin: 6px 0 0;
+  font-size: 0.87rem;
+  color: #355ea8;
+  font-weight: 600;
+}
+
+.loading-inline:empty {
+  display: none;
+}
+
+.seg-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
