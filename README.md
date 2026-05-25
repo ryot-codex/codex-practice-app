@@ -20,6 +20,17 @@
 - その際、UI上に「現在はサンプル表示です」と分かる案内を表示します。
 - 待ち時間が取得できない項目は「案内なし」と表示します。
 
+## GitHub Pagesでの直接取得について
+
+- GitHub Pages上のブラウザから、Queue-Times API（`.json` エンドポイント）へ **直接 `fetch`** しています。
+- 通信失敗時は、UIの「詳細（デバッグ）」に以下を表示します。
+  - API URL
+  - HTTP status / ok / statusText
+  - CORSまたはNetworkErrorの可能性
+  - JSON解析エラー
+  - データ形式不一致（`lands` / `rides`）
+- 失敗時のみサンプル表示へフォールバックし、成功時は「リアルタイム」表示になります。
+
 ## CORSと次善策
 
 - まずはブラウザから Queue-Times API を直接取得する方式です（GitHub Pages対応を優先）。
