@@ -28,6 +28,7 @@ const currentState = document.getElementById("currentState");
 const dataNotice = document.getElementById("dataNotice");
 const lastUpdated = document.getElementById("lastUpdated");
 const loadingState = document.getElementById("loadingState");
+const closureNotice = document.getElementById("closureNotice");
 const debugDetails = document.getElementById("debugDetails");
 const debugSummary = document.getElementById("debugSummary");
 const debugInfo = document.getElementById("debugInfo");
@@ -67,8 +68,18 @@ function formatUpdatedTime(dateString) {
 
 function resolveStatus(ride) {
   if (ride.is_open === true) return "稼働中";
-  if (ride.is_open === false) return "運休/停止中";
+  if (ride.is_open === false) {
+    if (ride.wait_time == null || ride.wait_time === 0) return "運営時間外または休止中";
+    return "休止中";
+  }
   return "状態不明";
+}
+
+function resolveWaitText(item) {
+  if (typeof item.wait === "number" && item.wait > 0) return `${item.wait}分`;
+  if (item.status === "運営時間外または休止中") return "運営時間外または休止中";
+  if (item.status === "休止中") return "休止中";
+  return "案内なし";
 }
 
 function normalizeRide(ride, parkName) {
@@ -162,6 +173,7 @@ async function refreshData() {
   currentState.textContent = `現在の表示: ${currentFilter} / データ取得中...`;
   loadingState.textContent = "読み込み中…";
   dataNotice.textContent = "待ち時間データを取得しています";
+  closureNotice.textContent = "";
   setButtonsDisabled(true);
 
   try {
@@ -241,7 +253,7 @@ function createCard(item) {
 
   const childBadgeClass = item.childFriendly ? "child-yes" : "child-no";
   const childLabel = item.childFriendly ? "👨‍👩‍👧 子連れ向け" : "🎢 絶叫寄り";
-  const waitText = typeof item.wait === "number" ? `${item.wait}分` : "案内なし";
+  const waitText = resolveWaitText(item);
 
   card.innerHTML = `
     <div class="card-head">
@@ -271,8 +283,16 @@ function render() {
 
   const sortLabel = currentSort === "wait" ? "待ち時間順" : "おすすめ順";
   const modeLabel = fallbackMode ? "（サンプル）" : "（リアルタイム）";
+  const hasLiveWait = items.some((item) => typeof item.wait === "number" && item.wait > 0 && item.status === "稼働中");
+  const hasLikelyClosedData = items.some((item) => item.status === "運営時間外または休止中");
   currentState.textContent = `現在の表示: ${currentFilter} / ${sortLabel} ${modeLabel}`;
   countText.textContent = `${items.length}件表示中`;
+  if (!fallbackMode && !hasLiveWait && hasLikelyClosedData) {
+    closureNotice.textContent = "現在、閉園後の可能性があります。開園中に再確認してください。";
+    dataNotice.textContent = "リアルタイム取得済み（閉園後・休止中データを含む）";
+  } else {
+    closureNotice.textContent = "";
+  }
 
   if (items.length === 0) {
     recommendText.textContent = "対象データがありません。条件を変えて確認してください。";
@@ -280,7 +300,7 @@ function render() {
   }
 
   const recommended = getRecommendedItem(items);
-  const waitText = typeof recommended.wait === "number" ? `${recommended.wait}分` : "案内なし";
+  const waitText = resolveWaitText(recommended);
   recommendText.textContent = `${recommended.name}（${recommended.park} / ${waitText} / ${recommended.status || "状態不明"}）`;
 }
 

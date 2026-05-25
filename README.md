@@ -58,6 +58,7 @@ const API_BASE_URL = "https://dark-pine-957e.oqosfyqziob.workers.dev";
 - フロントエンドは Queue-Times API を直接 `fetch` せず、必ず Cloudflare Worker (`?park=land/sea/all`) 経由で取得します。
 - Worker からの取得成功時は UI に「リアルタイム」と表示します。
 - 最終更新時刻は Worker の `fetchedAt`（または `generated_at`）と、ride ごとの `last_updated` を利用します。
+- 閉園後や休止中は `wait_time` が `null`（または `0`）になり、待ち時間が「案内なし」相当の状態になる場合があります（UIでは運営時間外・休止中として表示）。
 - 取得失敗時のみサンプル表示にフォールバックします。
 
 ## できること

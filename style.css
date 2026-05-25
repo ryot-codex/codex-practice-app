@@ -52,6 +52,16 @@ body {
   font-size: 0.98rem;
 }
 
+.top-notice {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #2f5ea8;
+}
+
+.top-notice:empty {
+  display: none;
+}
+
 .filter-bar,
 .recommend,
 .list-section {
