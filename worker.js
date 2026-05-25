@@ -9,6 +9,34 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
+const ATTRACTION_NAME_JA_MAP = {
+  "Alice's Tea Party": "アリスのティーパーティー",
+  "Big Thunder Mountain": "ビッグサンダー・マウンテン",
+  "Jungle Cruise: Wildlife Expeditions": "ジャングルクルーズ：ワイルドライフ・エクスペディション",
+  "Haunted Mansion": "ホーンテッドマンション",
+  "Monsters, Inc. Ride & Go Seek!": "モンスターズ・インク “ライド＆ゴーシーク！”",
+  "Enchanted Tale of Beauty and the Beast": "美女と野獣“魔法のものがたり”",
+  "Pooh's Hunny Hunt": "プーさんのハニーハント",
+  "Splash Mountain": "スプラッシュ・マウンテン",
+  "Space Mountain": "スペース・マウンテン",
+  "Tower of Terror": "タワー・オブ・テラー",
+  "Toy Story Mania!": "トイ・ストーリー・マニア！",
+  "Soaring: Fantastic Flight": "ソアリン：ファンタスティック・フライト",
+  "Journey to the Center of the Earth": "センター・オブ・ジ・アース",
+  "Indiana Jones Adventure®: Temple of the Crystal Skull": "インディ・ジョーンズ®・アドベンチャー：クリスタルスカルの魔宮",
+  "20,000 Leagues Under the Sea": "海底2万マイル",
+  "The Happy Ride with Baymax": "ベイマックスのハッピーライド",
+  "Pirates of the Caribbean": "カリブの海賊",
+  "Peter Pan's Flight": "ピーターパン空の旅",
+  "Star Tours: The Adventures Continue": "スター・ツアーズ：ザ・アドベンチャーズ・コンティニュー",
+  "Buzz Lightyear's Astro Blasters": "バズ・ライトイヤーのアストロブラスター",
+  "Raging Spirits": "レイジングスピリッツ",
+  "Aquatopia": "アクアトピア",
+  "Nemo & Friends SeaRider": "ニモ＆フレンズ・シーライダー",
+  "Sindbad's Storybook Voyage": "シンドバッド・ストーリーブック・ヴォヤッジ",
+  "Turtle Talk": "タートル・トーク"
+};
+
 function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body, null, 2), {
     status,
@@ -20,10 +48,14 @@ function jsonResponse(body, status = 200) {
 }
 
 function normalizeRide(ride, parkLabel, areaName) {
+  const englishName = ride?.name || "名称未登録";
+  const nameJa = ATTRACTION_NAME_JA_MAP[englishName] || null;
   return {
     park: parkLabel,
     area: areaName || "エリア情報なし",
-    name: ride?.name || "名称未登録",
+    name: englishName,
+    nameJa,
+    englishName,
     wait_time: typeof ride?.wait_time === "number" ? ride.wait_time : null,
     is_open: typeof ride?.is_open === "boolean" ? ride.is_open : null,
     status: ride?.is_open === true ? "稼働中" : ride?.is_open === false ? "運休/停止中" : "状態不明",

@@ -59,6 +59,7 @@ const API_BASE_URL = "https://dark-pine-957e.oqosfyqziob.workers.dev";
 - Worker からの取得成功時は UI に「リアルタイム」と表示します。
 - 最終更新時刻は Worker の `fetchedAt`（または `generated_at`）と、ride ごとの `last_updated` を利用します。
 - 閉園後や休止中は `wait_time` が `null`（または `0`）になり、待ち時間が「案内なし」相当の状態になる場合があります（UIでは運営時間外・休止中として表示）。
+- Worker 側で一部主要アトラクション名を英語から日本語へ変換し、`nameJa` を返しています。未対応のアトラクションは英語表示になる場合があります。
 - 取得失敗時のみサンプル表示にフォールバックします。
 
 ## できること
