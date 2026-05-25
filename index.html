@@ -7,24 +7,24 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="header">
+    <main class="container park-theme-all" id="appRoot">
+      <header class="hero-header">
+        <div class="hero-stars" aria-hidden="true"></div>
         <p class="eyebrow">DISNEY WAIT NOTES</p>
         <h1>ディズニー待ち時間メモ</h1>
-        <p class="subtitle">今日の予定と待ち時間を、上品に見やすく。</p>
+        <p class="subtitle">今日の予定と待ち時間を、見やすく整理</p>
         <p id="closureNotice" class="closure-notice" aria-live="polite"></p>
       </header>
 
-      <section class="panel filter-panel" aria-label="フィルターと並び替え">
+      <section class="panel ticket-panel" aria-label="フィルターと並び替え">
         <div class="control-group">
           <p class="group-label">Park</p>
           <div class="segmented segmented-park">
-            <button type="button" data-park-filter="ランド" class="seg-button">ランド</button>
-            <button type="button" data-park-filter="シー" class="seg-button">シー</button>
-            <button type="button" data-park-filter="すべて" class="seg-button is-active">すべて</button>
+            <button type="button" data-park-filter="ランド" class="seg-button park-label">Tokyo <span>Disneyland</span></button>
+            <button type="button" data-park-filter="シー" class="seg-button park-label">Tokyo <span>DisneySea</span></button>
+            <button type="button" data-park-filter="すべて" class="seg-button park-label is-active">All</button>
           </div>
         </div>
-
         <div class="control-group">
           <p class="group-label">Sort</p>
           <div class="segmented segmented-sort">
@@ -32,7 +32,6 @@
             <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
           </div>
         </div>
-
         <div class="control-group">
           <p class="group-label">Mode</p>
           <div class="segmented segmented-mode">
@@ -43,55 +42,38 @@
             <button type="button" data-mode="gap" class="seg-button">すき間時間</button>
           </div>
         </div>
-
         <div class="status-grid" aria-live="polite">
           <article class="status-card"><p class="status-label">現在の表示</p><p id="currentState" class="status-value"></p><p id="modeHint" class="status-sub"></p></article>
           <article class="status-card"><p class="status-label">表示件数</p><p id="countText" class="status-value"></p></article>
           <article class="status-card"><p class="status-label">最終更新</p><p id="lastUpdated" class="status-value"></p></article>
           <article class="status-card"><p class="status-label">リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
         </div>
-
         <p id="loadingState" class="loading-inline" aria-live="polite"></p>
       </section>
 
       <section class="panel schedule-panel">
-        <div class="schedule-head">
-          <h2>今日の予定</h2>
-          <p class="schedule-note">ショー/パレード時刻の自動取得は未対応です。今日の予定は手入力で管理します。</p>
-        </div>
-
+        <div class="schedule-head"><h2>今日の予定</h2><p class="schedule-note">ショー/パレード時刻の自動取得は未対応です。今日の予定は手入力で管理します。</p></div>
         <form id="scheduleForm" class="schedule-form">
-          <input id="planTitle" type="text" placeholder="予定名（例：ハーモニー・イン・カラー）" required />
+          <select id="planTitle" required></select>
+          <input id="planCustomTitle" type="text" placeholder="予定名を入力" />
           <input id="planTime" type="time" required />
-          <select id="planPark">
-            <option>ランド</option><option>シー</option><option>共通</option>
-          </select>
-          <select id="planCategory">
-            <option>ショー</option><option>パレード</option><option>食事</option><option>休憩</option><option>その他</option>
-          </select>
+          <select id="planPark"><option>Tokyo Disneyland</option><option>Tokyo DisneySea</option><option>All</option></select>
+          <select id="planCategory"><option>パレード</option><option>ショー</option><option>夜のショー</option><option>食事</option><option>休憩</option><option>その他</option></select>
           <input id="planMemo" type="text" placeholder="メモ（任意）" />
           <button type="submit" class="add-button">予定を追加</button>
         </form>
-
         <article id="nextPlanCard" class="next-plan-card"></article>
         <ul id="scheduleList" class="schedule-list"></ul>
       </section>
 
       <section class="panel recommend" aria-live="polite">
-        <div class="recommend-head"><h2>次の一手</h2><span class="recommend-chip">Next Move</span></div>
-        <p id="recommendText"></p>
+        <div class="recommend-head"><div><p class="magic-label">Magic Pick</p><h2>Next Move</h2><p class="recommend-sub">今から行きやすい候補</p></div></div>
+        <p id="recommendText"></p><p id="recommendNextPlan" class="recommend-next-plan"></p>
         <div id="recommendReasons" class="reason-row"></div>
       </section>
 
-      <section class="panel list-section">
-        <h2>アトラクション一覧</h2>
-        <div id="attractionList" class="card-list"></div>
-      </section>
-
-      <section class="notice">
-        <p>※ これは東京ディズニーリゾート公式アプリではありません。</p>
-        <p>※ <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a></p>
-      </section>
+      <section class="panel list-section"><h2>アトラクション一覧</h2><div id="attractionList" class="card-list"></div></section>
+      <section class="notice"><p>※ これは東京ディズニーリゾート公式アプリではありません。</p><p>※ <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a></p><p>※ ショー/パレード時刻は手入力で管理します。</p></section>
     </main>
     <script src="app.js"></script>
   </body>
