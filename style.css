@@ -248,3 +248,23 @@ body {
     margin-top: 0;
   }
 }
+
+.notice-inline {
+  margin: 6px 0 0;
+  font-size: 0.87rem;
+  color: #2e5fb5;
+}
+
+.notice p + p {
+  margin-top: 6px;
+}
+
+.notice a {
+  color: #1c4faf;
+  font-weight: 700;
+}
+
+.status-badge {
+  background: #eef2f8;
+  color: #475366;
+}
