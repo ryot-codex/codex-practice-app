@@ -51,12 +51,14 @@ GitHub Pages フロントエンド → Cloudflare Workers 中継API → Queue-Ti
 `app.js` 先頭の `API_BASE_URL` を Cloudflare Workers のURLに設定します。
 
 ```js
-const API_BASE_URL = "https://your-worker-name.your-subdomain.workers.dev";
+const API_BASE_URL = "https://dark-pine-957e.oqosfyqziob.workers.dev";
 ```
 
-- `API_BASE_URL` が空文字（未設定）の場合はサンプルデータ表示へフォールバックします。
+- 本リポジトリでは `API_BASE_URL` に `https://dark-pine-957e.oqosfyqziob.workers.dev` を設定済みです。
+- フロントエンドは Queue-Times API を直接 `fetch` せず、必ず Cloudflare Worker (`?park=land/sea/all`) 経由で取得します。
 - Worker からの取得成功時は UI に「リアルタイム」と表示します。
-- 取得失敗時は自動でサンプル表示にフォールバックします。
+- 最終更新時刻は Worker の `fetchedAt`（または `generated_at`）と、ride ごとの `last_updated` を利用します。
+- 取得失敗時のみサンプル表示にフォールバックします。
 
 ## できること
 
@@ -85,3 +87,12 @@ python3 -m http.server 8000
 - `style.css`: UIスタイル
 - `app.js`: フロントエンド取得・フォールバック・描画ロジック
 - `worker.js`: Cloudflare Workers 中継API
+
+
+## 動作確認方法（GitHub Pages）
+
+1. GitHub Pages を開き、ステータス表示が「サンプル」ではなく「リアルタイム」になることを確認する。
+2. パークを「ランド / シー / すべて」に切り替え、表示件数と一覧内容が切り替わることを確認する（`?park=land` / `?park=sea` / `?park=all`）。
+3. 件数が Queue-Times API 由来の件数になっていることを確認する（例: Worker の `normalizedRidesCount` / `count` と整合）。
+4. Worker URL を一時的に無効値に変更した場合のみ、サンプル表示へフォールバックすることを確認する。
+5. 画面下部の「Powered by Queue-Times.com」と「東京ディズニーリゾート公式アプリではありません」の表示が維持されていることを確認する。
