@@ -1,3 +1,5 @@
+const API_BASE_URL = ""; // 例: "https://your-worker-name.your-subdomain.workers.dev"
+
 const SAMPLE_ATTRACTIONS = [
   { park: "ランド", area: "ファンタジーランド", name: "プーさんのハニーハント", wait: 45, priority: "高", childFriendly: true, status: "稼働中" },
   { park: "ランド", area: "ウエスタンランド", name: "ビッグサンダー・マウンテン", wait: 35, priority: "中", childFriendly: false, status: "稼働中" },
@@ -13,9 +15,10 @@ const SAMPLE_ATTRACTIONS = [
   { park: "シー", area: "アメリカンウォーターフロント", name: "タワー・オブ・テラー", wait: 55, priority: "高", childFriendly: false, status: "稼働中" }
 ];
 
-const PARK_CONFIG = {
-  ランド: 274,
-  シー: 275
+const PARK_QUERY_MAP = {
+  ランド: "land",
+  シー: "sea",
+  すべて: "all"
 };
 
 const listElement = document.getElementById("attractionList");
@@ -98,35 +101,36 @@ function setDebugError(message, detailObj) {
   debugInfo.textContent = buildDebugInfo(detailObj);
 }
 
-async function fetchParkData(parkName) {
-  const parkId = PARK_CONFIG[parkName];
-  const url = `https://queue-times.com/parks/${parkId}/queue_times.json`;
+async function fetchWorkerData(parkName) {
+  if (!API_BASE_URL) {
+    throw {
+      type: "worker_not_configured",
+      parkName,
+      url: "未設定",
+      message: "API_BASE_URL が未設定のためサンプル表示にフォールバックします。"
+    };
+  }
+
+  const parkParam = PARK_QUERY_MAP[parkName] || "all";
+  const baseUrl = API_BASE_URL.replace(/\/$/, "");
+  const url = `${baseUrl}/?park=${parkParam}`;
 
   let response;
   try {
-    console.info("[QueueTimes] fetch start", { parkName, url });
+    console.info("[WorkerAPI] fetch start", { parkName, url });
     response = await fetch(url, { cache: "no-store" });
   } catch (error) {
-    console.error("[QueueTimes] fetch failed (network/CORS)", { parkName, url, error });
+    console.error("[WorkerAPI] fetch failed", { parkName, url, error });
     throw {
       type: "network_or_cors",
       parkName,
       url,
-      message: "CORSまたはNetworkErrorの可能性があります。",
+      message: "Cloudflare Worker への接続に失敗しました。",
       originalError: error
     };
   }
 
-  console.info("[QueueTimes] fetch response", {
-    parkName,
-    url,
-    status: response.status,
-    ok: response.ok,
-    statusText: response.statusText
-  });
-
   if (!response.ok) {
-    console.error("[QueueTimes] non-ok response", { parkName, url, status: response.status, statusText: response.statusText });
     throw {
       type: "http_error",
       parkName,
@@ -134,58 +138,31 @@ async function fetchParkData(parkName) {
       status: response.status,
       ok: response.ok,
       statusText: response.statusText,
-      message: "HTTPステータスが異常です。"
+      message: "Worker API のHTTPステータスが異常です。"
     };
   }
 
-  let data;
-  try {
-    data = await response.json();
-  } catch (error) {
-    console.error("[QueueTimes] JSON parse error", { parkName, url, status: response.status, statusText: response.statusText, error });
-    throw {
-      type: "json_parse_error",
-      parkName,
-      url,
-      status: response.status,
-      ok: response.ok,
-      statusText: response.statusText,
-      message: "JSON解析に失敗しました。",
-      originalError: error
-    };
-  }
-
-  const lands = Array.isArray(data.lands) ? data.lands : null;
-  console.info("[QueueTimes] JSON summary", {
-    parkName,
-    url,
-    hasLandsArray: Array.isArray(data.lands),
-    landsCount: Array.isArray(data.lands) ? data.lands.length : 0,
-    sampleLandKeys: Array.isArray(data.lands) && data.lands[0] ? Object.keys(data.lands[0]) : [],
-    sampleRideKeys: Array.isArray(data.lands) && data.lands[0] && Array.isArray(data.lands[0].rides) && data.lands[0].rides[0] ? Object.keys(data.lands[0].rides[0]) : []
-  });
-
-  if (!lands) {
-    console.error("[QueueTimes] invalid data shape", { parkName, url, keys: Object.keys(data || {}) });
+  const data = await response.json();
+  if (!Array.isArray(data?.rides)) {
     throw {
       type: "data_shape_error",
       parkName,
       url,
-      status: response.status,
-      ok: response.ok,
-      statusText: response.statusText,
-      message: "データ形式不一致: lands 配列がありません。",
-      topLevelKeys: Object.keys(data || {})
+      message: "Worker API のレスポンス形式が不正です。"
     };
   }
 
-  return lands.flatMap((land) => {
-    const rides = Array.isArray(land.rides) ? land.rides : [];
-    return rides.map((ride) => normalizeRide({ ...ride, land: land.name }, parkName));
-  });
+  return data.rides.map((ride) => normalizeRide({
+    name: ride.name,
+    wait_time: ride.wait_time,
+    is_open: ride.is_open,
+    last_updated: ride.last_updated,
+    land: ride.area
+  }, ride.park));
 }
 
 async function refreshData() {
+
   currentState.textContent = `現在の表示: ${currentFilter} / データ取得中...`;
   loadingState.textContent = "読み込み中…";
   dataNotice.textContent = "待ち時間データを取得しています";
@@ -193,14 +170,14 @@ async function refreshData() {
 
   try {
     const targets = currentFilter === "すべて" ? ["ランド", "シー"] : [currentFilter];
-    const results = await Promise.all(targets.map((park) => fetchParkData(park)));
+    const results = await Promise.all(targets.map((park) => fetchWorkerData(park)));
     liveAttractions = results.flat();
     fallbackMode = false;
 
     const apiTimes = liveAttractions.map((ride) => ride.apiLastUpdated).filter(Boolean).sort();
     const latestApiTime = apiTimes.length ? apiTimes[apiTimes.length - 1] : null;
 
-    dataNotice.textContent = "リアルタイム待ち時間を表示中";
+    dataNotice.textContent = "リアルタイム待ち時間を表示中（リアルタイム）";
     lastUpdated.textContent = latestApiTime
       ? `最終更新(API由来): ${formatUpdatedTime(latestApiTime)}`
       : `最終更新(API由来): ${formatUpdatedTime()}`;
