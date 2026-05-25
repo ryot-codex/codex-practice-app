@@ -9,7 +9,6 @@
   <body>
     <main class="container park-theme-all" id="appRoot">
       <header class="hero-header">
-        <div class="hero-stars" aria-hidden="true"></div>
         <p class="eyebrow">DISNEY WAIT NOTES</p>
         <h1>ディズニー待ち時間メモ</h1>
         <p class="subtitle">今日の予定と待ち時間を、見やすく整理</p>
@@ -17,31 +16,29 @@
       </header>
 
       <section class="panel ticket-panel" aria-label="フィルターと並び替え">
-        <div class="control-group control-group-park">
-          <p class="group-label">Park</p>
+        <div class="control-group control-line">
+          <p class="group-label icon-castle">PARK</p>
           <div class="segmented segmented-park">
-            <button type="button" data-park-filter="ランド" class="seg-button park-label">Tokyo <span>Disneyland</span></button>
-            <button type="button" data-park-filter="シー" class="seg-button park-label">Tokyo <span>DisneySea</span></button>
+            <button type="button" data-park-filter="ランド" class="seg-button park-label">Tokyo Disneyland</button>
+            <button type="button" data-park-filter="シー" class="seg-button park-label">Tokyo DisneySea</button>
             <button type="button" data-park-filter="すべて" class="seg-button park-label is-active">All</button>
           </div>
         </div>
-        <div class="control-row">
-          <div class="control-group">
-            <p class="group-label">Sort</p>
-            <div class="segmented segmented-sort">
-              <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
-              <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
-            </div>
+        <div class="control-group control-line">
+          <p class="group-label icon-star">SORT</p>
+          <div class="segmented segmented-sort">
+            <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
+            <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
           </div>
-          <div class="control-group">
-            <p class="group-label">Mode</p>
-            <div class="segmented segmented-mode">
-              <button type="button" data-mode="normal" class="seg-button is-active">通常</button>
-              <button type="button" data-mode="family" class="seg-button">子連れ</button>
-              <button type="button" data-mode="efficient" class="seg-button">効率重視</button>
-              <button type="button" data-mode="relax" class="seg-button">休憩向き</button>
-              <button type="button" data-mode="gap" class="seg-button">すき間時間</button>
-            </div>
+        </div>
+        <div class="control-group control-line">
+          <p class="group-label icon-compass">MODE</p>
+          <div class="segmented segmented-mode">
+            <button type="button" data-mode="normal" class="seg-button is-active">通常</button>
+            <button type="button" data-mode="family" class="seg-button">子連れ</button>
+            <button type="button" data-mode="efficient" class="seg-button">効率重視</button>
+            <button type="button" data-mode="relax" class="seg-button">休憩向き</button>
+            <button type="button" data-mode="gap" class="seg-button">すき間時間</button>
           </div>
         </div>
         <div class="status-grid" aria-live="polite">
@@ -53,27 +50,27 @@
         <p id="loadingState" class="loading-inline" aria-live="polite"></p>
       </section>
 
+      <section class="panel recommend" aria-live="polite">
+        <p class="magic-label">Magic Pick</p><h2>Next Move</h2>
+        <div class="recommend-grid">
+          <div><p id="recommendTitle" class="recommend-title"></p><p id="recommendText"></p><p id="recommendNextPlan" class="recommend-next-plan"></p><div id="recommendReasons" class="reason-row"></div></div>
+          <p id="recommendWait" class="recommend-wait"></p>
+        </div>
+      </section>
+
       <section class="panel schedule-panel">
         <div class="schedule-head"><h2>今日の予定</h2><p class="schedule-note">ショー/パレード時刻の自動取得は未対応です。今日の予定は手入力で管理します。</p></div>
         <form id="scheduleForm" class="schedule-form">
-          <div class="form-row row-title"><select id="planTitle" required></select></div>
-          <div class="form-row row-custom"><input id="planCustomTitle" type="text" placeholder="予定名を入力" /></div>
-          <div class="form-row row-triplet">
-            <input id="planTime" type="time" required />
-            <select id="planPark"><option>Tokyo Disneyland</option><option>Tokyo DisneySea</option><option>All</option></select>
-            <select id="planCategory"><option>パレード</option><option>ショー</option><option>夜のショー</option><option>食事</option><option>休憩</option><option>その他</option></select>
-          </div>
-          <div class="form-row row-memo"><input id="planMemo" type="text" placeholder="メモ（任意）" /></div>
-          <div class="form-row row-action"><button type="submit" class="add-button">予定を追加</button></div>
+          <select id="planTitle" required></select>
+          <input id="planCustomTitle" type="text" placeholder="予定名を入力" />
+          <input id="planTime" type="time" required />
+          <select id="planPark"><option>Tokyo Disneyland</option><option>Tokyo DisneySea</option><option>All</option></select>
+          <select id="planCategory"><option>パレード</option><option>ショー</option><option>夜のショー</option><option>食事</option><option>休憩</option><option>その他</option></select>
+          <input id="planMemo" type="text" placeholder="メモ（任意）" />
+          <button type="submit" class="add-button">追加</button>
         </form>
         <article id="nextPlanCard" class="next-plan-card"></article>
         <ul id="scheduleList" class="schedule-list"></ul>
-      </section>
-
-      <section class="panel recommend" aria-live="polite">
-        <div class="recommend-head"><div><p class="magic-label">Magic Pick</p><h2>Next Move</h2><p class="recommend-sub">今から行きやすい候補</p></div></div>
-        <p id="recommendText"></p><p id="recommendNextPlan" class="recommend-next-plan"></p>
-        <div id="recommendReasons" class="reason-row"></div>
       </section>
 
       <section class="panel list-section"><h2>アトラクション一覧</h2><div id="attractionList" class="card-list"></div></section>
