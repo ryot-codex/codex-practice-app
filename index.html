@@ -9,10 +9,10 @@
   <body>
     <main class="container">
       <header class="header">
-        <div>
+        <div class="header-inner">
           <p class="eyebrow">Disney Wait Notes</p>
           <h1>ディズニー待ち時間メモ</h1>
-          <p class="lead">東京ディズニーランド / シー の待ち時間を見やすく確認</p>
+          <p class="lead">ランド / シーの待ち時間を、見やすく整理</p>
           <p id="closureNotice" class="top-notice" aria-live="polite"></p>
         </div>
       </header>
@@ -20,7 +20,7 @@
       <section class="filter-bar" aria-label="フィルターと並び替え">
         <div class="control-group" role="group" aria-label="パーク切り替え">
           <p class="group-label">パーク</p>
-          <div class="segmented-control">
+          <div class="segmented-control segmented-park">
             <button type="button" data-park-filter="ランド" class="seg-button">ランド</button>
             <button type="button" data-park-filter="シー" class="seg-button">シー</button>
             <button type="button" data-park-filter="すべて" class="seg-button is-active">すべて</button>
@@ -29,19 +29,20 @@
 
         <div class="control-group" role="group" aria-label="並び順切り替え">
           <p class="group-label">並び順</p>
-          <div class="segmented-control">
+          <div class="segmented-control segmented-sort">
             <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
             <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
           </div>
         </div>
 
-        <div class="status-row" aria-live="polite">
-          <p id="currentState" class="current-state"></p>
-          <p id="countText" class="count-text"></p>
-          <p id="lastUpdated" class="count-text"></p>
-          <p id="dataNotice" class="notice-inline"></p>
-          <p id="loadingState" class="loading-inline" aria-live="polite"></p>
+        <div class="status-grid" aria-live="polite">
+          <article class="status-card"><p class="status-label">現在の表示</p><p id="currentState" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">件数</p><p id="countText" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">最終更新</p><p id="lastUpdated" class="status-value"></p></article>
+          <article class="status-card"><p class="status-label">リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
         </div>
+
+        <p id="loadingState" class="loading-inline" aria-live="polite"></p>
         <details id="debugDetails" class="debug-details">
           <summary>詳細（デバッグ）</summary>
           <p id="debugSummary" class="debug-summary">通常時は非表示です。</p>
@@ -57,7 +58,7 @@
       <section class="recommend" aria-live="polite">
         <div class="recommend-head">
           <h2>今おすすめ</h2>
-          <span class="recommend-tag">Pick</span>
+          <span class="recommend-tag">おすすめ Pick</span>
         </div>
         <p id="recommendText"></p>
       </section>
