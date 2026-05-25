@@ -40,6 +40,7 @@ let currentFilter = "すべて";
 let currentSort = "recommended";
 let liveAttractions = [];
 let fallbackMode = false;
+let translationStats = { matched: 0, total: 0 };
 
 const priorityScore = { 高: 3, 中: 2, 低: 1 };
 const priorityClassMap = { 高: "priority-high", 中: "priority-mid", 低: "priority-low" };
@@ -67,17 +68,13 @@ function formatUpdatedTime(dateString) {
 }
 
 function resolveStatus(ride) {
-  if (ride.is_open === true) return "稼働中";
-  if (ride.is_open === false) {
-    if (ride.wait_time == null || ride.wait_time === 0) return "運営時間外または休止中";
-    return "休止中";
-  }
-  return "状態不明";
+  if (ride.is_open === false) return "休止中";
+  if (ride.is_open === true && typeof ride.wait_time === "number") return "稼働中";
+  return "案内なし";
 }
 
 function resolveWaitText(item) {
-  if (typeof item.wait === "number" && item.wait > 0) return `${item.wait}分`;
-  if (item.status === "運営時間外または休止中") return "運営時間外または休止中";
+  if (typeof item.wait === "number") return `${item.wait}分`;
   if (item.status === "休止中") return "休止中";
   return "案内なし";
 }
@@ -96,7 +93,8 @@ function normalizeRide(ride, parkName) {
     priority: inferPriority(wait),
     status: resolveStatus(ride),
     childFriendly: true,
-    apiLastUpdated: typeof ride.last_updated === "string" ? ride.last_updated : null
+    apiLastUpdated: typeof ride.last_updated === "string" ? ride.last_updated : null,
+    translationMatched: Boolean(ride.translationMatched || nameJa)
   };
 }
 
@@ -162,6 +160,7 @@ async function fetchWorkerData(parkName) {
     name: ride.name,
     nameJa: ride.nameJa,
     englishName: ride.englishName,
+    translationMatched: ride.translationMatched,
     wait_time: ride.wait_time,
     is_open: ride.is_open,
     last_updated: ride.last_updated || ride.lastUpdated || null,
@@ -170,7 +169,8 @@ async function fetchWorkerData(parkName) {
 
   return {
     rides: normalizedRides,
-    fetchedAt: data.fetchedAt || data.generated_at || null
+    fetchedAt: data.fetchedAt || data.generated_at || null,
+    translationMatchedCount: data.translation_matched_count || 0
   };
 }
 
@@ -186,6 +186,7 @@ async function refreshData() {
     const result = await fetchWorkerData(currentFilter);
     liveAttractions = result.rides;
     fallbackMode = false;
+    translationStats = { matched: result.translationMatchedCount, total: result.rides.length };
 
     const rideTimes = liveAttractions.map((ride) => ride.apiLastUpdated).filter(Boolean).sort();
     const latestRideTime = rideTimes.length ? rideTimes[rideTimes.length - 1] : null;
@@ -195,7 +196,7 @@ async function refreshData() {
     lastUpdated.textContent = latestApiTime
       ? `最終更新(API由来): ${formatUpdatedTime(latestApiTime)}`
       : `最終更新(API由来): ${formatUpdatedTime()}`;
-    setDebugSuccess("正常取得中。失敗時のみ詳細を展開します。");
+    setDebugSuccess(`正常取得中。日本語変換：${translationStats.matched} / ${translationStats.total}件`);
   } catch (error) {
     fallbackMode = true;
     liveAttractions = [...SAMPLE_ATTRACTIONS];
@@ -211,6 +212,7 @@ async function refreshData() {
       errorObject: error?.originalError ? String(error.originalError) : String(error)
     };
 
+    translationStats = { matched: 0, total: liveAttractions.length };
     dataNotice.textContent = "API取得に失敗したため、現在はサンプル表示です。";
     lastUpdated.textContent = `最終更新: ${formatUpdatedTime()}（サンプル）`;
     setDebugError("取得失敗の詳細（原因切り分け用）", detail);
@@ -272,7 +274,7 @@ function createCard(item) {
     <div class="meta-row">
       <span class="badge ${priorityClassMap[item.priority]}">優先度 ${item.priority}</span>
       <span class="badge ${childBadgeClass}">${childLabel}</span>
-      <span class="badge status-badge">${item.status || "状態不明"}</span>
+      <span class="badge status-badge">${item.status || "案内なし"}</span>
     </div>
   `;
 
@@ -289,13 +291,14 @@ function render() {
 
   const sortLabel = currentSort === "wait" ? "待ち時間順" : "おすすめ順";
   const modeLabel = fallbackMode ? "（サンプル）" : "（リアルタイム）";
-  const hasLiveWait = items.some((item) => typeof item.wait === "number" && item.wait > 0 && item.status === "稼働中");
-  const hasLikelyClosedData = items.some((item) => item.status === "運営時間外または休止中");
+  const hasLiveWait = items.some((item) => typeof item.wait === "number" && item.status === "稼働中");
+  const lowGuidanceCount = items.filter((item) => item.status === "休止中" || item.status === "案内なし").length;
+  const hasLikelyClosedData = items.length > 0 && (lowGuidanceCount / items.length) >= 0.8;
   currentState.textContent = `現在の表示: ${currentFilter} / ${sortLabel} ${modeLabel}`;
   countText.textContent = `${items.length}件表示中`;
   if (!fallbackMode && !hasLiveWait && hasLikelyClosedData) {
-    closureNotice.textContent = "現在、閉園後の可能性があります。開園中に再確認してください。";
-    dataNotice.textContent = "リアルタイム取得済み（閉園後・休止中データを含む）";
+    closureNotice.textContent = "現在は閉園後、または待ち時間案内が少ない時間帯の可能性があります。";
+    dataNotice.textContent = "リアルタイム取得済み（案内なし・休止中が多い時間帯）";
   } else {
     closureNotice.textContent = "";
   }
@@ -307,7 +310,7 @@ function render() {
 
   const recommended = getRecommendedItem(items);
   const waitText = resolveWaitText(recommended);
-  recommendText.textContent = `${recommended.name}（${recommended.park} / ${waitText} / ${recommended.status || "状態不明"}）`;
+  recommendText.textContent = `${recommended.name}（${recommended.park} / ${waitText} / ${recommended.status || "案内なし"}）`;
 }
 
 parkButtons.forEach((button) => {
