@@ -84,10 +84,14 @@ function resolveWaitText(item) {
 
 function normalizeRide(ride, parkName) {
   const wait = typeof ride.wait_time === "number" ? ride.wait_time : null;
+  const nameJa = typeof ride.nameJa === "string" && ride.nameJa.length ? ride.nameJa : null;
+  const englishName = ride.englishName || ride.name || "名称未登録";
   return {
     park: parkName,
     area: ride.land || "エリア情報なし",
-    name: ride.name || "名称未登録",
+    name: nameJa || englishName,
+    nameJa,
+    englishName,
     wait,
     priority: inferPriority(wait),
     status: resolveStatus(ride),
@@ -156,6 +160,8 @@ async function fetchWorkerData(parkName) {
 
   const normalizedRides = data.rides.map((ride) => normalizeRide({
     name: ride.name,
+    nameJa: ride.nameJa,
+    englishName: ride.englishName,
     wait_time: ride.wait_time,
     is_open: ride.is_open,
     last_updated: ride.last_updated || ride.lastUpdated || null,
