@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ディズニー待ち時間メモ</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>ディズニー待ち時間メモ</h1>
+        <p>サンプルデータで待ち時間を確認しよう</p>
+      </header>
+
+      <section class="controls" aria-label="並び替え">
+        <button id="sortButton" type="button">待ち時間が短い順に並び替え</button>
+      </section>
+
+      <section class="recommend" aria-live="polite">
+        <h2>今おすすめ</h2>
+        <p id="recommendText"></p>
+      </section>
+
+      <section>
+        <h2>アトラクション一覧</h2>
+        <div id="attractionList" class="card-list"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
