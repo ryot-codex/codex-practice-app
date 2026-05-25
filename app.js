@@ -25,6 +25,9 @@ const currentState = document.getElementById("currentState");
 const dataNotice = document.getElementById("dataNotice");
 const lastUpdated = document.getElementById("lastUpdated");
 const loadingState = document.getElementById("loadingState");
+const debugDetails = document.getElementById("debugDetails");
+const debugSummary = document.getElementById("debugSummary");
+const debugInfo = document.getElementById("debugInfo");
 
 const parkButtons = document.querySelectorAll("[data-park-filter]");
 const sortButtons = document.querySelectorAll("[data-sort]");
@@ -50,7 +53,8 @@ function inferPriority(wait) {
   return "低";
 }
 
-function formatUpdatedTime(date) {
+function formatUpdatedTime(dateString) {
+  const date = dateString ? new Date(dateString) : new Date();
   return new Intl.DateTimeFormat("ja-JP", {
     hour: "2-digit",
     minute: "2-digit",
@@ -73,19 +77,108 @@ function normalizeRide(ride, parkName) {
     wait,
     priority: inferPriority(wait),
     status: resolveStatus(ride),
-    childFriendly: true
+    childFriendly: true,
+    apiLastUpdated: typeof ride.last_updated === "string" ? ride.last_updated : null
   };
+}
+
+function buildDebugInfo(obj) {
+  return JSON.stringify(obj, null, 2);
+}
+
+function setDebugSuccess(message) {
+  debugDetails.open = false;
+  debugSummary.textContent = message;
+  debugInfo.textContent = "";
+}
+
+function setDebugError(message, detailObj) {
+  debugDetails.open = true;
+  debugSummary.textContent = message;
+  debugInfo.textContent = buildDebugInfo(detailObj);
 }
 
 async function fetchParkData(parkName) {
   const parkId = PARK_CONFIG[parkName];
   const url = `https://queue-times.com/parks/${parkId}/queue_times.json`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`APIエラー: ${res.status}`);
+
+  let response;
+  try {
+    console.info("[QueueTimes] fetch start", { parkName, url });
+    response = await fetch(url, { cache: "no-store" });
+  } catch (error) {
+    console.error("[QueueTimes] fetch failed (network/CORS)", { parkName, url, error });
+    throw {
+      type: "network_or_cors",
+      parkName,
+      url,
+      message: "CORSまたはNetworkErrorの可能性があります。",
+      originalError: error
+    };
   }
-  const data = await res.json();
-  const lands = Array.isArray(data.lands) ? data.lands : [];
+
+  console.info("[QueueTimes] fetch response", {
+    parkName,
+    url,
+    status: response.status,
+    ok: response.ok,
+    statusText: response.statusText
+  });
+
+  if (!response.ok) {
+    console.error("[QueueTimes] non-ok response", { parkName, url, status: response.status, statusText: response.statusText });
+    throw {
+      type: "http_error",
+      parkName,
+      url,
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText,
+      message: "HTTPステータスが異常です。"
+    };
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    console.error("[QueueTimes] JSON parse error", { parkName, url, status: response.status, statusText: response.statusText, error });
+    throw {
+      type: "json_parse_error",
+      parkName,
+      url,
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText,
+      message: "JSON解析に失敗しました。",
+      originalError: error
+    };
+  }
+
+  const lands = Array.isArray(data.lands) ? data.lands : null;
+  console.info("[QueueTimes] JSON summary", {
+    parkName,
+    url,
+    hasLandsArray: Array.isArray(data.lands),
+    landsCount: Array.isArray(data.lands) ? data.lands.length : 0,
+    sampleLandKeys: Array.isArray(data.lands) && data.lands[0] ? Object.keys(data.lands[0]) : [],
+    sampleRideKeys: Array.isArray(data.lands) && data.lands[0] && Array.isArray(data.lands[0].rides) && data.lands[0].rides[0] ? Object.keys(data.lands[0].rides[0]) : []
+  });
+
+  if (!lands) {
+    console.error("[QueueTimes] invalid data shape", { parkName, url, keys: Object.keys(data || {}) });
+    throw {
+      type: "data_shape_error",
+      parkName,
+      url,
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText,
+      message: "データ形式不一致: lands 配列がありません。",
+      topLevelKeys: Object.keys(data || {})
+    };
+  }
+
   return lands.flatMap((land) => {
     const rides = Array.isArray(land.rides) ? land.rides : [];
     return rides.map((ride) => normalizeRide({ ...ride, land: land.name }, parkName));
@@ -103,13 +196,34 @@ async function refreshData() {
     const results = await Promise.all(targets.map((park) => fetchParkData(park)));
     liveAttractions = results.flat();
     fallbackMode = false;
+
+    const apiTimes = liveAttractions.map((ride) => ride.apiLastUpdated).filter(Boolean).sort();
+    const latestApiTime = apiTimes.length ? apiTimes[apiTimes.length - 1] : null;
+
     dataNotice.textContent = "リアルタイム待ち時間を表示中";
-    lastUpdated.textContent = `最終更新: ${formatUpdatedTime(new Date())}`;
+    lastUpdated.textContent = latestApiTime
+      ? `最終更新(API由来): ${formatUpdatedTime(latestApiTime)}`
+      : `最終更新(API由来): ${formatUpdatedTime()}`;
+    setDebugSuccess("正常取得中。失敗時のみ詳細を展開します。");
   } catch (error) {
     fallbackMode = true;
     liveAttractions = [...SAMPLE_ATTRACTIONS];
-    dataNotice.textContent = "通信に失敗したため、現在はサンプル表示です。時間をおいて再読み込みしてください。";
-    lastUpdated.textContent = `最終更新: ${formatUpdatedTime(new Date())}（サンプル）`;
+
+    const detail = {
+      errorType: error?.type || "unknown",
+      park: error?.parkName || currentFilter,
+      apiUrl: error?.url || "不明",
+      status: error?.status ?? "なし",
+      ok: error?.ok ?? "なし",
+      statusText: error?.statusText || "なし",
+      hint: error?.message || "想定外エラー",
+      errorObject: error?.originalError ? String(error.originalError) : String(error)
+    };
+
+    dataNotice.textContent = "API取得に失敗したため、現在はサンプル表示です。";
+    lastUpdated.textContent = `最終更新: ${formatUpdatedTime()}（サンプル）`;
+    setDebugError("取得失敗の詳細（原因切り分け用）", detail);
+    console.error("[QueueTimes] fallback to sample", detail);
   } finally {
     loadingState.textContent = "";
     setButtonsDisabled(false);
