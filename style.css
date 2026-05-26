@@ -49,9 +49,9 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
 .area-card{border:1px solid var(--border);background:var(--surface-soft);border-radius:10px;padding:10px}
 .area-card.is-selected{border-color:var(--accent);background:var(--accent-soft)}
 .area-card-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.area-name-row{display:flex;align-items:center;gap:6px}
+.area-name-row{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
 .area-name{margin:0;font-weight:800}
-.area-selected-badge{font-size:.68rem;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff}
+.area-selected-badge{display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;line-height:1;padding:3px 10px;min-width:4.8em;border-radius:999px;background:var(--accent);color:#fff;white-space:nowrap;word-break:keep-all;flex-shrink:0}
 .area-park{margin:0;color:var(--muted);font-size:.75rem}
 .area-avg{margin:6px 0 0;font-size:.95rem;font-weight:700;color:var(--accent)}
 .area-count,.area-shortest{margin:4px 0 0;font-size:.83rem;color:#3c4f67}
@@ -170,6 +170,8 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   .segmented-mode{display:flex;overflow-x:auto;grid-template-columns:none}
   .segmented-mode .seg-button{flex:0 0 auto;min-width:84px}
   .area-filter-status{width:100%}
+  .area-name-row{align-items:flex-start}
+  .area-selected-badge{padding:2px 9px;font-size:.65rem;min-width:4.6em}
   .card{grid-template-columns:50px minmax(0,1fr);gap:8px}
   .card-thumb{min-height:50px}
 }
