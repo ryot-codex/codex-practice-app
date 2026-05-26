@@ -8,16 +8,30 @@
   </head>
   <body>
     <main class="container park-theme-all" id="appRoot">
-      <header class="hero-header">
-        <p class="eyebrow">DISNEY WAIT NOTES</p>
-        <h1>ディズニー待ち時間メモ</h1>
-        <p class="subtitle">今日の予定と待ち時間を、見やすく整理</p>
-        <p id="closureNotice" class="closure-notice" aria-live="polite"></p>
-      </header>
+      <section class="top-grid">
+        <header class="hero-header">
+          <p class="eyebrow">DISNEY WAIT NOTES</p>
+          <h1>ディズニー待ち時間メモ</h1>
+          <p class="subtitle">今日の予定と待ち時間を、見やすく整理</p>
+          <p id="closureNotice" class="closure-notice" aria-live="polite"></p>
+        </header>
+
+        <section class="panel status-panel" aria-label="現在の表示ステータス" aria-live="polite">
+          <h2 class="status-title">現在のステータス</h2>
+          <div class="status-grid">
+            <article class="status-card"><p class="status-label">現在の表示</p><p id="currentState" class="status-value"></p><p id="modeHint" class="status-sub"></p></article>
+            <article class="status-card"><p class="status-label">表示件数</p><p id="countText" class="status-value"></p></article>
+            <article class="status-card"><p class="status-label">最終更新</p><p id="lastUpdated" class="status-value"></p></article>
+            <article class="status-card"><p class="status-label">リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
+          </div>
+          <p id="loadingState" class="loading-inline" aria-live="polite"></p>
+          <p id="debugState" class="loading-inline" aria-live="polite"></p>
+        </section>
+      </section>
 
       <section class="panel ticket-panel" aria-label="フィルターと並び替え">
         <div class="control-group control-line">
-          <p class="group-label icon-castle">PARK</p>
+          <p class="group-label">PARK</p>
           <div class="segmented segmented-park">
             <button type="button" data-park-filter="ランド" class="seg-button park-label">Tokyo Disneyland</button>
             <button type="button" data-park-filter="シー" class="seg-button park-label">Tokyo DisneySea</button>
@@ -25,14 +39,14 @@
           </div>
         </div>
         <div class="control-group control-line">
-          <p class="group-label icon-star">SORT</p>
+          <p class="group-label">SORT</p>
           <div class="segmented segmented-sort">
             <button type="button" data-sort="recommended" class="seg-button is-active">おすすめ順</button>
             <button type="button" data-sort="wait" class="seg-button">待ち時間順</button>
           </div>
         </div>
         <div class="control-group control-line">
-          <p class="group-label icon-compass">MODE</p>
+          <p class="group-label">MODE</p>
           <div class="segmented segmented-mode">
             <button type="button" data-mode="normal" class="seg-button is-active">通常</button>
             <button type="button" data-mode="family" class="seg-button">子連れ</button>
@@ -41,14 +55,6 @@
             <button type="button" data-mode="gap" class="seg-button">すき間時間</button>
           </div>
         </div>
-        <div class="status-grid" aria-live="polite">
-          <article class="status-card"><p class="status-label">現在の表示</p><p id="currentState" class="status-value"></p><p id="modeHint" class="status-sub"></p></article>
-          <article class="status-card"><p class="status-label">表示件数</p><p id="countText" class="status-value"></p></article>
-          <article class="status-card"><p class="status-label">最終更新</p><p id="lastUpdated" class="status-value"></p></article>
-          <article class="status-card"><p class="status-label">リアルタイム状態</p><p id="dataNotice" class="status-value"></p></article>
-        </div>
-        <p id="loadingState" class="loading-inline" aria-live="polite"></p>
-        <p id="debugState" class="loading-inline" aria-live="polite"></p>
       </section>
 
       <section class="panel recommend" aria-live="polite">
