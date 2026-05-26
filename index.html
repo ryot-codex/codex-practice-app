@@ -86,7 +86,13 @@
         <ul id="scheduleList" class="schedule-list"></ul>
       </section>
 
-      <section class="panel list-section"><h2>アトラクション一覧</h2><div id="attractionList" class="card-list"></div></section>
+      <section class="panel list-section">
+        <div class="list-head">
+          <h2>アトラクション一覧</h2>
+          <div id="areaFilterStatus" class="area-filter-status" aria-live="polite"></div>
+        </div>
+        <div id="attractionList" class="card-list"></div>
+      </section>
       <section class="notice"><p>※ これは東京ディズニーリゾート公式アプリではありません。</p><p>※ <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a></p><p>※ ショー/パレード時刻は手入力で管理します。</p></section>
     </main>
     <script src="app.js"></script>

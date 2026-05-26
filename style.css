@@ -47,8 +47,11 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
 .section-sub{margin:0;color:var(--muted);font-size:.78rem}
 .area-card-list{display:grid;grid-template-columns:1fr;gap:8px}
 .area-card{border:1px solid var(--border);background:var(--surface-soft);border-radius:10px;padding:10px}
+.area-card.is-selected{border-color:var(--accent);background:var(--accent-soft)}
 .area-card-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.area-name-row{display:flex;align-items:center;gap:6px}
 .area-name{margin:0;font-weight:800}
+.area-selected-badge{font-size:.68rem;padding:2px 7px;border-radius:999px;background:var(--accent);color:#fff}
 .area-park{margin:0;color:var(--muted);font-size:.75rem}
 .area-avg{margin:6px 0 0;font-size:.95rem;font-weight:700;color:var(--accent)}
 .area-count,.area-shortest{margin:4px 0 0;font-size:.83rem;color:#3c4f67}
@@ -74,6 +77,10 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
 .delete-button{border:1px solid #dfc6c6;background:#fff6f6;border-radius:8px;color:#7a3e3e}
 
 .card-list{display:grid;gap:10px;margin-top:8px}
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.list-head h2{margin:0}
+.area-filter-status{font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.clear-area-filter{border:1px solid var(--border);background:#fff;border-radius:999px;padding:4px 10px;font-size:.75rem;color:var(--accent);font-weight:700}
 .card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff}
 .card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}
 .wait-time{font-size:1.4rem;font-weight:900;color:var(--accent)}
@@ -140,4 +147,5 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   .status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .segmented-mode{display:flex;overflow-x:auto;grid-template-columns:none}
   .segmented-mode .seg-button{flex:0 0 auto;min-width:84px}
+  .area-filter-status{width:100%}
 }
