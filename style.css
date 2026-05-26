@@ -81,18 +81,39 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
 .list-head h2{margin:0}
 .area-filter-status{font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .clear-area-filter{border:1px solid var(--border);background:#fff;border-radius:999px;padding:4px 10px;font-size:.75rem;color:var(--accent);font-weight:700}
-.card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.card{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff}
 .card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}
 .wait-time{font-size:1.4rem;font-weight:900;color:var(--accent)}
 .wait-paused,.wait-unknown{font-size:1.05rem}
-.card-thumb{border-radius:9px;position:relative;overflow:hidden;border:1px solid #d3ddea;min-height:72px}
-.card-thumb::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,#d9e6f8,#f3f7fe)}
-.area-western::before{background:linear-gradient(145deg,#ddd2c4,#f3ece2)}
-.area-adventure::before{background:linear-gradient(145deg,#d6e5d8,#eef8ef)}
-.area-tomorrow::before{background:linear-gradient(145deg,#8fa8cf,#d6e2f3)}
-.area-arabian::before{background:linear-gradient(145deg,#e6dbc4,#f8f2e8)}
-.area-mermaid::before{background:linear-gradient(145deg,#c5e7ed,#ebf8fc)}
-.area-mysterious::before{background:linear-gradient(145deg,#a2b5cf,#dee7f3)}
+.card-thumb{border-radius:11px;position:relative;overflow:hidden;border:1px solid #d7e0eb;min-height:56px;aspect-ratio:1/1}
+.card-thumb::before,.card-thumb::after,.thumb-mark{content:"";position:absolute;inset:auto}
+.card-thumb::before{inset:0;background:linear-gradient(145deg,#eff3f8,#f8fbff)}
+.card-thumb::after{left:10px;right:10px;bottom:11px;height:2px;border-radius:999px;background:#b7c3d6;opacity:.45}
+.thumb-mark{left:14px;top:14px;width:28px;height:28px;border-radius:8px;border:2px solid #8ea1bc;opacity:.55}
+.visual-boat::before{background:linear-gradient(150deg,#dff0fb,#f7fbff)}
+.visual-boat::after{height:14px;left:8px;right:8px;bottom:8px;border-radius:999px;background:radial-gradient(circle at 8px 9px,#93bad7 0 2px,transparent 2px) 0 0/12px 100% repeat-x;opacity:.35}
+.visual-boat .thumb-mark{border-radius:999px;border-color:#78a7c9;border-top-color:transparent;transform:rotate(-14deg)}
+.visual-coaster::before{background:linear-gradient(150deg,#efe8de,#faf5ee)}
+.visual-coaster::after{left:8px;right:8px;bottom:9px;height:16px;border-radius:10px 10px 12px 12px;background:linear-gradient(135deg,transparent 10%,#b9a78f 10% 16%,transparent 16% 32%,#b9a78f 32% 38%,transparent 38% 54%,#b9a78f 54% 60%,transparent 60%);opacity:.45}
+.visual-coaster .thumb-mark{border-color:#a78d72;border-left-width:1px;border-right-width:1px;transform:skewX(-10deg)}
+.visual-theater::before{background:linear-gradient(150deg,#edf0f4,#f8f9fb)}
+.visual-theater::after{left:9px;right:9px;bottom:9px;height:15px;background:#c4ccd8;border-radius:4px;opacity:.45}
+.visual-theater .thumb-mark{border:none;background:linear-gradient(90deg,#8d9ab0 0 30%,transparent 30% 38%,#8d9ab0 38% 68%,transparent 68% 76%,#8d9ab0 76%);opacity:.45}
+.visual-carousel::before{background:linear-gradient(150deg,#f8f1ee,#fffaf6)}
+.visual-carousel .thumb-mark{border-radius:999px;border-color:#cfa7a7;box-shadow:0 0 0 6px #ffffff66 inset}
+.visual-carousel::after{left:14px;bottom:8px;width:28px;height:11px;border-radius:999px;background:#e7c9bf;opacity:.42}
+.visual-indoor::before{background:linear-gradient(150deg,#e5ecf7,#f5f8fd)}
+.visual-indoor::after{left:10px;right:10px;bottom:10px;height:12px;background:radial-gradient(circle,#91a7c6 0 1.2px,transparent 1.2px) 0 0/8px 8px repeat;opacity:.45}
+.visual-indoor .thumb-mark{border-color:#7d96ba;background:linear-gradient(180deg,#ffffff80,transparent)}
+.visual-kids::before{background:linear-gradient(150deg,#ebf3ff,#f7fbff)}
+.visual-kids::after{left:11px;right:11px;bottom:11px;height:14px;background:radial-gradient(circle,#90afd4 0 2px,transparent 2px) 0 0/10px 10px repeat;opacity:.45}
+.visual-kids .thumb-mark{border-radius:999px;border-color:#86a8d1}
+.visual-rest::before{background:linear-gradient(150deg,#eaf4ea,#f8fbf8)}
+.visual-rest::after{left:12px;right:12px;bottom:9px;height:14px;background:radial-gradient(circle at center,#9cbda1 0 4px,transparent 4px) left center/14px 14px repeat-x;opacity:.4}
+.visual-rest .thumb-mark{border-color:#90af95;border-radius:999px}
+.visual-default::before{background:linear-gradient(145deg,#edf1f6,#f8fbff)}
+.visual-default::after{left:13px;right:13px;bottom:10px;height:12px;background:#bcc8d8;border-radius:999px;opacity:.35}
+.visual-default .thumb-mark{border-color:#98a9c0}
 .meta-row{display:flex;gap:6px;flex-wrap:wrap}
 .feature-badge{background:#eef4fd;border-color:#d8e4f8}
 .priority-high{background:#f7edf2}.priority-mid{background:#fdf4e9}.priority-low{background:#edf7ef}
@@ -125,6 +146,7 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   .recommend-grid{grid-template-columns:minmax(0,1fr) auto}
   .list-section{padding-top:12px}
   .card-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .card{grid-template-columns:60px minmax(0,1fr)}
 }
 
 @media (min-width:1200px){
@@ -148,4 +170,6 @@ body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   .segmented-mode{display:flex;overflow-x:auto;grid-template-columns:none}
   .segmented-mode .seg-button{flex:0 0 auto;min-width:84px}
   .area-filter-status{width:100%}
+  .card{grid-template-columns:50px minmax(0,1fr);gap:8px}
+  .card-thumb{min-height:50px}
 }
