@@ -106,6 +106,7 @@ function normalizeRide(ride, parkLabel, areaName) {
     nameJa,
     englishName,
     translationMatched: Boolean(nameJa),
+    waitTime,
     wait_time: waitTime,
     is_open: isOpen,
     status: isOpen === false ? "休止中" : waitTime == null ? "案内なし" : "稼働中",
@@ -119,12 +120,18 @@ async function fetchParkQueueData(parkKey) {
   const response = await fetch(apiUrl, { cf: { cacheTtl: 30, cacheEverything: false } });
   if (!response.ok) throw new Error(`Queue-Times API error (${response.status} ${response.statusText}) @ ${apiUrl}`);
   const data = await response.json();
-  if (!Array.isArray(data?.lands)) throw new Error(`Invalid data shape from Queue-Times API @ ${apiUrl}`);
-  const rides = data.lands.flatMap((land) => {
+  const landRides = Array.isArray(data?.lands)
+    ? data.lands.flatMap((land) => {
     const areaName = land?.name || "エリア情報なし";
     const areaRides = Array.isArray(land?.rides) ? land.rides : [];
     return areaRides.map((ride) => normalizeRide(ride, parkInfo.label, areaName));
-  });
+      })
+    : [];
+  const rootRides = Array.isArray(data?.rides)
+    ? data.rides.map((ride) => normalizeRide(ride, parkInfo.label, ride?.land?.name || "エリア情報なし"))
+    : [];
+  const rides = landRides.length ? landRides : rootRides;
+  if (!rides.length) throw new Error(`Invalid data shape from Queue-Times API @ ${apiUrl}`);
 
   return { park: parkInfo.label, park_id: parkInfo.id, source_url: apiUrl, rides };
 }
